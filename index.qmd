@@ -1,0 +1,413 @@
+---
+title: "Demo Stylish Article"
+# Output formats
+format:
+  stylisharticle-pdf:
+    keep-tex: true
+    # Color example, see "Text color"
+    header-includes:
+      \definecolor{grey}{RGB}{191, 191, 191}
+  stylisharticle-html:
+    # Color example, see "Text color"
+    css: colors.css
+# Authors (https://quarto.org/docs/journals/authors.html#author-schema)
+author:
+  - name: John Doe
+    affiliations:
+      - name: Dummy Organization
+        department: Scientific Department
+        address: Somewhere
+        city: City
+        country: Country
+        postal-code: 9999
+    orcid: 0000-0000-0000-0000
+    email: JD@example.org
+    url: https://example.org/
+  - name: His Friend
+  - name: Athird One
+    corresponding: true
+    email: at1@x.com
+    url: https://www.x.com
+    affiliations:
+      - name: Third Affiliation
+# Abstract and Keywords
+abstract: |
+  This document is only a demo explaining how to use the Stylish Article template.
+keywords: [template, demo]
+# Bibliography
+reference-section-title: References
+bibliography: references.bib
+biblio-style: chicago
+# Language
+lang: en-GB
+# Code options 
+# https://quarto.org/docs/computations/execution-options.html#output-options
+execute:
+  # show code chunk output
+  include: true
+  # Show the code in the output
+  echo: false
+  # Show messages
+  message: false
+  # Show warnings
+  warning: false
+  # Cache code results
+  cache: false
+# Template specific
+journalinfo: "Publication reference"
+archive: "DOI: xxx/xx"
+keywordlabel: Keywords
+corrauthorlabel: Corresponding Author
+---
+
+```{r}
+#| label: DoNotModify
+### Utilities for R. 
+# Do not modify unless you don't use R: then, delete this chunk.
+# Installation of R packages if necessary
+install_packages <- function(packages) {
+  invisible(
+    sapply(
+      packages, 
+      FUN = function(package) {
+        if (!package %in% installed.packages()[, 1]) {
+          install.packages(
+            package, 
+            repos = "https://cran.rstudio.com/", 
+            quiet = TRUE
+          )
+        }
+      }
+    )
+  )
+}
+
+# Basic packages
+install_packages(c("knitR", "formatR", "kableExtra"))
+
+# Chunk font size hook: allows size='small' or any valid Latex font size in chunk options
+def.chunk.hook <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(
+  chunk = function(x, options) {
+    x <- def.chunk.hook(x, options)
+    ifelse(
+      options$size == "normalsize", 
+      yes = x,
+      no = paste0("\n \\", options$size, "\n\n", x, "\n\n \\normalsize")
+    )
+  }
+)
+```
+
+```{r}
+#| label: Options
+### Customized R options for this document
+# Delete this chunk if you don't use R
+
+# Add necessary packages here
+packages <- c("tidyverse")
+# Install them
+install_packages(packages)
+
+# knitr options (https://yihui.org/knitr/options/)
+knitr::opts_chunk$set(
+  # Code chunk automatic format if tidy is TRUE
+  tidy = TRUE, 
+  # Tidy code options: remove blank lines and cut lines after 50 characters
+  tidy.opts = list(blank = FALSE, width.cutoff = 50),
+  # Font size in PDF output
+  size = "scriptsize", 
+  # Select PDF figures in PDF output if PDF file exists beside PNG file
+  knitr.graphics.auto_pdf = TRUE
+)
+# Text width of R functions output
+options(width = 50)
+
+# ggplot style
+library("tidyverse")
+theme_set(theme_bw())
+theme_update(
+  panel.background = element_rect(fill = "transparent", colour = NA),
+  plot.background = element_rect(fill = "transparent", colour = NA)
+)
+knitr::opts_chunk$set(dev.args = list(bg = "transparent"))
+
+# Random seed
+set.seed(973)
+```
+
+# Introduction
+
+This template allows writing stylish articles in Markdown with Quarto[^1]. It directly produces well-formatted PDF articles for self-archiving or in other formats, for example HTML.
+
+[^1]: <https://quarto.org/>
+
+# Markdown {#markdown}
+
+Markdown is a very simple language for producing various types of documents: HTML, PDF, and Word among others. Its documentation is available on the Quarto website[^2].
+
+[^2]: <https://quarto.org/docs/authoring/markdown-basics.html>
+
+This document was made RStudio, but other tools are available[^3]: Quarto processes the Markdown code, passes it to Pandoc for transformation into LaTeX based on the Stylish Article template provided in this Quarto extension; finally LaTeX compiles it into PDF.
+
+[^3]: <https://quarto.org/docs/get-started/>
+
+## Motivation
+
+Markdown is very easy to learn.
+
+Markdown allows integrating your R, Python and more code for a *reproducible* result.
+
+Markdown allows to produce, without rewriting the text, a document in different formats: HTML, LaTeX or Word for example.
+
+# Code
+
+The main features of Markdown are summarized here. The full documentation is on-line[^4].
+
+[^4]: <https://quarto.org/docs/authoring/markdown-basics.html/>
+
+## R and other code
+
+R code is included in code chunks:
+
+```{r cars}
+#| echo: true
+head(cars)
+```
+
+Similar chunks support other languages such as Python. This template focuses on R but can be used with any other code language supported by Quarto.
+
+## Figures
+
+```{r}
+#| label: fig-pressure
+#| fig-cap: "Figure _title_ with maths : $\\pi$ and cross-reference to @tbl-kable"
+#| out-width: 80%
+#| fig-env: "figure*"
+plot(pressure)
+```
+
+Figures can be created by R code (@fig-pressure). A label is associated with each figure: its name is given in the `#| label:` option of the chunk that produces it. It must start with `fig-`. Cross-references are made with the command `@label`, e.g.: `@fig-pressure`.
+
+In PDF, a figure can use the full width of the page by adding the options `fig-env="figure*"` to the header of the code chunk that generates it.
+
+Existing figures are integrated into a piece of code by the `include_graphics()` function, see @fig-logo.
+
+```{r}
+#| label: fig-logo
+#| fig-cap: "Logo"
+#| out-width: 30%
+knitr::include_graphics("images/logo.png")
+```
+
+Systematically place these files in the `images` folder for the automation of GitHub pages.
+
+## Tables
+
+The horizontal `-` and vertical separators `|` allow you to draw a table according to Markdown syntax, but this is not the best method in R.
+
+Tables can also be produced by R code. The content of the table is in a dataframe. The `kbl()` function prepares the table for display and passes the result to `kable_styling()` for final formatting.
+
+```{r}
+#| label: tbl-kable
+#| tbl-cap: "Table _created_ by R, with $\\pi$. Dummy legend to demonstrate formatting capacities."
+#| echo: false
+#| tidy: false
+
+names(iris) <- c(
+  "Sepal length", 
+  "Width", 
+  "Petal length", 
+  "Width", 
+  "Species"
+)
+head(iris) %>% 
+  kableExtra::kbl(
+    # Tables can be longer than a page
+    longtable = TRUE, 
+    # Nice separators
+    booktabs = TRUE
+  ) %>%
+  kableExtra::kable_styling(
+    # Striped rows for readability
+    bootstrap_options = "striped"
+  )
+```
+
+The caption is specified by the `#| tbl-cap:` chunk option.
+
+Always use the `booktabs = TRUE` argument so that the separator lines are optimal in LaTeX. The `bootstrap_options = "striped"` option provides more readable tables in HTML.
+
+In LaTeX, `longtable = TRUE` selects the "longtable" package to format tables. Such tables are placed in the text. Due to limits of the "longtable" package which does not support multi-column layouts, the Stylish Article template uses a workaround that does not allow really long tables to be split into several columns or pages. So, `longtable = TRUE` only means that the table will be one-column wide and located in the text if possible. If not, it will float.
+
+To use the full width of the page, like @tbl-Paracou, `longtable` is set to `FALSE` in the arguments of `kbl()`. The option `full_width = TRUE` in `kable_styling()` allows adjusting the width of the table to that of the page.
+
+```{r}
+#| label: tbl-Paracou
+#| tbl-cap: "Large table with maths, on two columns"
+#| echo: false
+
+Intervention <- data.frame(
+  Treatment = c("Control", "T1", "T2", "T3"),
+  Timber = c(
+    "", 
+    "DBH $\\geq$ 50 cm, commercial species, $\\approx$ 10 trees/ha", 
+    "DBH $\\geq$ 50 cm, commercial species, $\\approx$ 10 trees/ha",
+    "DBH $\\geq$ 50 cm, commercial species, $\\approx$ 10 trees/ha"
+  ),
+  Thinning = c(
+    "", 
+    "", 
+    "DBH $\\geq$ 40 cm, non-valuable species, $\\approx$ 30 trees/ha", 
+    "DBH $\\geq$ 50 cm, non-valuable species, $\\approx$ 15 trees/ha  "
+  ),
+  Fuelwood = c(
+    "", 
+    "", 
+    "", 
+    "40 cm $\\leq$ DBH $\\leq$ 50 cm, non-valuable species, $\\approx$ 15 trees/ha"
+  ),
+  AGBLost = c(0, "$[12\\%-33\\%]$", "$[33\\%-56\\%]$", "$[35\\%-56\\%]$")
+)
+names(Intervention)[5] <- "\\%AGB lost"
+Intervention %>% 
+  kableExtra::kbl(
+    # Full width table
+    longtable = FALSE, 
+    # Nice separators
+    booktabs = TRUE, 
+    # Special characters in the table
+    escape = FALSE
+  ) %>%
+  kableExtra::kable_styling(
+    # Striped rows for readability
+    bootstrap_options = "striped", 
+    # Full width table
+    full_width = TRUE
+  )
+```
+
+This table contains mathematics: the `escape = FALSE` argument is necessary in `kable()`. This feature is not yet supported by Quarto in the HTML output.
+
+Finally, the `full_width = TRUE` argument in `kable_styling()` adjusts the width of the table to the available width. It must be set for correct formatting of two-column tables in LaTeX.
+
+Note that tables can't be shown on the first page of the PDF output of the Stylish Article template: they would conflict with the table of contents.
+
+## Lists
+
+Lists are indicated by `*`, `+` and `-` (three hierarchical levels) or numbers `1.`, `i.` and `A.` (numbered lists). Indentation of lists indicates their level: `*`, `+` and `-` may be replaced by `-` at all levels, but four spaces are needed to nest a list into another.
+
+-   First element of a list
+    -   sub-list
+-   Second element
+-   Continuation of the list
+
+Leave an empty line before and after the list, but not between its items.
+
+## Math
+
+Equations in LaTeX format can be inserted inline, like $A = \pi r^2$ or isolated like $$e^{i \pi} = -1.$$
+
+They can be numbered, see @eq-disk, after adding them a label:
+
+$$
+  A = \pi r^2.
+$$ {#eq-disk}
+
+## Cross-references
+
+Figures and tables have a label declared in their code chunk option `tbl-cap` or `fig-cap`, starting with `fig-` or `tbl-`.
+
+For equations, the label is added manually by the code `{#eq-xxx}` after the end of the equation.
+
+Sections can be tagged by ending their title with `{#sec-yyy}`.
+
+In all cases, the call to the reference is made by `@`.
+
+## Bibliography
+
+Bibliographic references included in the `.bib` file declared in the document header can be called by `[@CitationKey]`, in parentheses [@Xie2018], or without square brackets, in the text, as @Xie2016.
+
+The bibliography is processed by Pandoc when producing Word or HTML documents. The bibliographic style can be specified, by adding the line
+
+```         
+csl: file_name.csl
+```
+
+in the document header and copying the *.csl* style file to the project folder. More than a thousand styles are available[^5] and their URL can be used instead of copying the file, e.g.:
+
+[^5]: <https://github.com/citation-style-language/styles>
+
+```         
+csl: https://www.zotero.org/styles/xxx
+```
+
+For PDF documents, the bibliography is managed by natbib. The style is declared in the header:
+
+```         
+biblio-style: chicago
+```
+
+It can be changed as long as the appropriate `.bst` file (by default: `chicago.bst`) is included in the project.
+
+## Forcing line breaks
+
+Hyphenation is handled automatically in LaTeX. If a word is not hyphenated correctly, add its hyphenation in the preamble of the file with the command `hyphenation` (words are separated by spaces, hyphenation locations are represented by dashes).
+
+If LaTeX can't find a solution for the line break, for example because some code is too long a non-breaking block, add the LaTeX command `\break` to the line break location. Do not leave a space before the command. The HTML document ignores LaTeX commands.
+
+## Languages
+
+Languages are declared in the document header.
+
+The main language of the document (`lang`) changes the name of some elements, such as the table of contents. The change of language in the document (one of `otherlangs`) is managed in LaTeX (but not fully in HTML).
+
+For a single word, to ensure correct hyphenation in LaTeX, use the following command, ignored un HTML:
+
+```         
+\foreignlanguage{italian}{ciao}
+```
+
+For a paragraph, to also ensure correct quotes and punctuation spacing, use
+
+```         
+::: {lang=fr}
+"Bonjour": en français!
+:::
+```
+
+to obtain:
+
+::: {lang="fr"}
+"Bonjour": en français!
+:::
+
+The current language has an effect only in LaTeX output: a space is added before double punctuation in French, the size of spaces is larger at the beginning of sentences in English, etc.
+
+## Text color
+
+This template includes the "color-text" filter for Quarto. It makes colored text possible using the `[content]{color=<name>}` syntax. [This is a red example]{color="red"}. Defined colors are blue, green and red. To add more colors, they must be defined in the document header in `format:`, `stylisharticle-pdf:`, `header-includes:` . This is the code for "grey":
+
+```         
+    \definecolor{grey}{RGB}{191, 191, 191}
+```
+
+They must also be included in a `.css` file declared in `format:`, `stylisharticle-html:`
+
+```         
+    css: colors.css
+```
+
+In this css, colors are declared by
+
+```         
+.color-grey {color: rgb(191, 191, 191);}
+```
+
+# Caveats
+
+Quarto does not yet support all features of R Markdown. Unsolved issues are listed here, as of version 1.7:
+
+-   The `column` options in code chunks or `{.column-xxx}` div's can't be used in this template. They interfere with the two-column LaTeX layout. The template relies on other techniques to print full-width figures and tables.
+-   Tables do not support equations in HTML ([issue #555](https://github.com/quarto-dev/quarto-cli/issues/555)). The issue comes from the `kableExtra` R package.
+-   Language-specific formats are only partially applied in LaTeX: in the example above, French quotes are not applied. The format of the quotes follows the main language of the document. This seems to be due to the design of the *csquote* LaTeX package.
