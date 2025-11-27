@@ -166,9 +166,13 @@ The main features of Markdown are summarized here. The full documentation is on-
 
 [^4]: <https://quarto.org/docs/authoring/markdown-basics.html/>
 
+$$
+S = c A^z * \frac{2} {3} + \sqrt{\pi} + \sum_{i=0}^{n}{i^2}
+$$ {#eq-arrhenius}
+
 ## R and other code
 
-R code is included in code chunks:
+R code is included in code chunks (@eq-arrhenius):
 
 ```{r cars}
 #| echo: true
